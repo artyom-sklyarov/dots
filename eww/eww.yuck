@@ -1,14 +1,17 @@
+; ---------- variables ----------
 (defpoll time         :interval "30s" "date '+%b %d, %H:%M'")
 (defpoll battery_text :interval "30s" `~/.config/eww/scripts/battery.sh`)
 (defpoll volume_text  :interval "2s"  `~/.config/eww/scripts/volume.sh`)
 (defpoll bri_pct      :interval "5s"  `~/.config/eww/scripts/brightness.sh`)
 (defpoll nightshift   :interval "2s"  "pgrep -x hyprsunset >/dev/null && echo on || echo off")
+(deflisten special_active :initial "" `~/.config/eww/scripts/special-active.sh`)
 
 (deflisten window_title :initial "" "hyprland-activewindow eDP-1")
 (deflisten language     `~/.config/eww/scripts/language.sh`)
 (deflisten notification `~/.config/eww/scripts/notification.sh`)
 (deflisten workspaces :initial "[]" "hyprland-workspaces ALL")
 
+; ---------- widgets ----------
 (defwidget power []
     (eventbox :cursor "pointer"
         (button :class "mod power"
@@ -22,7 +25,9 @@
                 (button :class {
                     "ws"
                     + (ws.id < 0 ? " special" : "")
-                    + (ws.active ? " active" : "")
+                    + ((ws.id < 0
+                        ? (replace(ws.name, "^special:", "") == special_active)
+                        : ws.active) ? " active" : "")
                   }
                         :onclick {ws.id < 0
                                   ? "hyprctl dispatch togglespecialworkspace ${replace(ws.name, '^special:', '')}"
@@ -106,9 +111,10 @@
         (center)
         (right)))
 
+; ---------- windows ----------
 (defwindow bar
     :monitor 0
-    :geometry (geometry :x "0%" :y "0%" :width "100%" :height "26px" :anchor "top center")
+    :geometry (geometry :x "0%" :y "0%" :width "100%" :height "22px" :anchor "top center")
     :stacking "fg"
     :exclusive true
     :focusable false

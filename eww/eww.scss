@@ -1,6 +1,6 @@
 * {
     font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
     letter-spacing: 0;
     -gtk-icon-style: regular;
@@ -49,7 +49,7 @@ button.mod {
 .overview {
     color: #ffffff;
     padding: 0 10px;
-    font-size: 11px;
+    font-size: 12px;
     border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 .overview:hover { color: #ffffff; }
@@ -58,7 +58,7 @@ button.mod {
     padding: 0 8px;
     margin-right: 4px;
     color: #ffffff;
-    font-size: 14px;
+    font-size: 12px;
     border-left: none;
 }
 .power:hover {
@@ -67,7 +67,7 @@ button.mod {
 }
 
 .window {
-    color: #ffffff;
+    color: #a8a8ad;
     padding: 0 8px;
     border-left: none;
 }
@@ -85,21 +85,21 @@ button.mod {
     padding: 0 8px;
     margin: 0;
     border: none;
-    border-top: 2px solid transparent;
-    border-bottom: 2px solid transparent;
     border-radius: 0;
     background-color: #222222;
     color: #888888;
     min-width: 24px;
+    box-shadow: none;
+    text-shadow: none;
+    outline: none;
 }
 .ws:hover {
     background-color: rgba(255, 255, 255, 0.75);
     color: #222222;
 }
 .ws.active {
-    background-color: #cc2222;
+    background-color: transparent;
     color: #ffffff;
-    border-bottom: 2px solid #ff3333;
     font-weight: bold;
 }
 .ws.special {
@@ -109,7 +109,6 @@ button.mod {
 .ws.special.active {
     background-color: #8a1818;
     color: #ffffff;
-    border-bottom: 2px solid #ff3333;
     font-weight: bold;
 }
 .ws.special:hover,
