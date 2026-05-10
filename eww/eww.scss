@@ -1,0 +1,127 @@
+* {
+    font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0;
+    -gtk-icon-style: regular;
+    min-height: 0;
+}
+
+.bar {
+    background-color: rgba(28, 28, 30, 0.55);
+    color: #f5f5f7;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 12px 0 0;
+}
+
+.mod button,
+button.mod {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.mod {
+    padding: 0 12px;
+    color: #ffffff;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.volume label,
+.brightness label,
+.notification label {
+    padding: 0 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.volume,
+.brightness,
+.notification {
+    padding: 0;
+    border-left: none;
+}
+
+.nightshift {
+    padding: 0 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.nightshift.on { color: #f5c065; }
+
+.overview {
+    color: #ffffff;
+    padding: 0 10px;
+    font-size: 11px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.overview:hover { color: #ffffff; }
+
+.power {
+    padding: 0 8px;
+    margin-right: 4px;
+    color: #ffffff;
+    font-size: 14px;
+    border-left: none;
+}
+.power:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.window {
+    color: #ffffff;
+    padding: 0 8px;
+    border-left: none;
+}
+
+.tray {
+    padding: 0 12px;
+    border-left: none;
+}
+.tray > * {
+    margin: 0 6px;
+}
+
+.workspaces { margin: 0; padding: 0; border-left: none; }
+.ws {
+    padding: 0 8px;
+    margin: 0;
+    border: none;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background-color: #222222;
+    color: #888888;
+    min-width: 24px;
+}
+.ws:hover {
+    background-color: rgba(255, 255, 255, 0.75);
+    color: #222222;
+}
+.ws.active {
+    background-color: #cc2222;
+    color: #ffffff;
+    border-bottom: 2px solid #ff3333;
+    font-weight: bold;
+}
+.ws.special {
+    margin-right: 6px;
+    padding: 0 12px;
+}
+.ws.special.active {
+    background-color: #8a1818;
+    color: #ffffff;
+    border-bottom: 2px solid #ff3333;
+    font-weight: bold;
+}
+.ws.special:hover,
+.ws.special.active:hover {
+    background-color: #cccccc;
+    color: #222222;
+}
+
+.clock { color: #ffffff; }
+
+.notification {
+    padding: 0;
+    margin-right: 4px;
+    color: #ffffff;
+}

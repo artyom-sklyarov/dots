@@ -1,0 +1,4 @@
+gsettings set org.gnome.desktop.interface font-name           'SF Pro Display 11'
+gsettings set org.gnome.desktop.interface monospace-font-name 'SF Mono 11'
+gsettings set org.gnome.desktop.interface document-font-name  'SF Pro Text 12'
+

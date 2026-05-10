@@ -1,0 +1,115 @@
+(defpoll time         :interval "30s" "date '+%b %d, %H:%M'")
+(defpoll battery_text :interval "30s" `~/.config/eww/scripts/battery.sh`)
+(defpoll volume_text  :interval "2s"  `~/.config/eww/scripts/volume.sh`)
+(defpoll bri_pct      :interval "5s"  `~/.config/eww/scripts/brightness.sh`)
+(defpoll nightshift   :interval "2s"  "pgrep -x hyprsunset >/dev/null && echo on || echo off")
+
+(deflisten window_title :initial "" "hyprland-activewindow eDP-1")
+(deflisten language     `~/.config/eww/scripts/language.sh`)
+(deflisten notification `~/.config/eww/scripts/notification.sh`)
+(deflisten workspaces :initial "[]" "hyprland-workspaces ALL")
+
+(defwidget power []
+    (eventbox :cursor "pointer"
+        (button :class "mod power"
+                :onclick "kill -USR1 $(cat /tmp/power-menu.pid 2>/dev/null) 2>/dev/null || setsid -f python3 ~/.config/eww/scripts/power-menu.py"
+            "󰣇")))
+
+(defwidget workspaces []
+    (box :class "mod workspaces" :orientation "h" :space-evenly false :spacing 0
+        (for ws in workspaces
+            (eventbox :cursor "pointer"
+                (button :class {
+                    "ws"
+                    + (ws.id < 0 ? " special" : "")
+                    + (ws.active ? " active" : "")
+                  }
+                        :onclick {ws.id < 0
+                                  ? "hyprctl dispatch togglespecialworkspace ${replace(ws.name, '^special:', '')}"
+                                  : "hyprctl dispatch workspace ${ws.id}"}
+                    {replace(ws.name, "^special:", "")})))))
+
+(defwidget left []
+    (box :orientation "h" :space-evenly false :halign "start" :spacing 0
+        (power)
+        (label :class "mod window" :text window_title :limit-width 80)))
+
+(defwidget center []
+    (box :orientation "h" :space-evenly false :halign "center"
+        (workspaces)))
+
+(defwidget tray []
+    (systray :class "mod tray"
+             :orientation "h"
+             :spacing 12
+             :icon-size 16
+             :prepend-new true))
+
+(defwidget overview []
+    (eventbox :cursor "pointer"
+        (button :class "mod overview"
+                :onclick "setsid -f kitty --class hyprland-overview --title 'Window Overview' -o remember_window_size=no -o initial_window_width=100c -o initial_window_height=30c -o confirm_os_window_close=0 -e python3 ~/.config/eww/scripts/window-overview.py"
+            "󰕰")))
+
+(defwidget nightshift []
+    (eventbox :cursor "pointer"
+        (button :class {"mod nightshift " + nightshift}
+                :onclick "pgrep -x hyprsunset && killall hyprsunset || setsid -f hyprsunset -t 4000"
+            {nightshift == "on" ? "󰽥" : "󰖨"})))
+
+(defwidget volume []
+    (eventbox :class "mod volume"
+              :cursor "pointer"
+              :onclick "setsid -f pavucontrol"
+              :onrightclick "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+              :onscroll "[ '{}' = 'up' ] && wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 2%+ || wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
+        (label :text volume_text)))
+
+(defwidget brightness []
+    (eventbox :class "mod brightness"
+              :cursor "pointer"
+              :onclick "kill -USR1 $(cat /tmp/brightness-slider.pid 2>/dev/null) 2>/dev/null || setsid -f python3 ~/.config/eww/scripts/brightness-slider.py"
+              :onscroll "~/.config/hypr/brightness.sh {} 2"
+        (label :text {bri_pct == "" ? "󰍹" : "󰍹 ${bri_pct}%"})))
+
+(defwidget battery []
+    (label :class "mod battery" :text battery_text))
+
+(defwidget language []
+    (label :class "mod language" :text language))
+
+(defwidget clock []
+    (label :class "mod clock" :text time))
+
+(defwidget notif []
+    (eventbox :class "mod notification"
+              :cursor "pointer"
+              :onclick "swaync-client -t -sw"
+              :onrightclick "swaync-client -d -sw"
+        (label :text notification)))
+
+(defwidget right []
+    (box :orientation "h" :space-evenly false :halign "end" :spacing 0
+        (tray)
+        (overview)
+        (nightshift)
+        (volume)
+        (brightness)
+        (battery)
+        (language)
+        (clock)
+        (notif)))
+
+(defwidget bar []
+    (centerbox :orientation "h" :class "bar"
+        (left)
+        (center)
+        (right)))
+
+(defwindow bar
+    :monitor 0
+    :geometry (geometry :x "0%" :y "0%" :width "100%" :height "26px" :anchor "top center")
+    :stacking "fg"
+    :exclusive true
+    :focusable false
+    (bar))
