@@ -9,5 +9,31 @@
 // Learn more about configuration at https://docs.vicinae.com/config
 
 {
-   "$schema": "https://vicinae.com/schemas/config.json"
+   "$schema": "https://vicinae.com/schemas/config.json",
+
+   "theme": {
+      "light": { "name": "spotlight", "icon_theme": "auto" },
+      "dark":  { "name": "spotlight", "icon_theme": "auto" }
+   },
+
+   "font": {
+      "rendering": "native",
+      "normal": { "family": "SF Pro Display", "size": 11.5 }
+   },
+
+   "launcher_window": {
+      "opacity": 0.85,
+      "blur": { "enabled": true },
+      "dim_around": false,
+
+      "client_side_decorations": {
+         "enabled": true,
+         "rounding": 14,
+         "border_width": 0
+      },
+
+      "compact_mode": { "enabled": true },
+
+      "size": { "width": 720, "height": 500 }
+   }
 }

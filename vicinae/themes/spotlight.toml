@@ -1,0 +1,71 @@
+# Spotlight — macOS-inspired dark launcher theme
+# Pairs with: launcher_window.compact_mode = true, rounding 14, opacity ~0.85, blur
+
+[meta]
+name = "Spotlight"
+description = "macOS Spotlight-inspired translucent dark launcher"
+variant = "dark"
+inherits = "vicinae-dark"
+
+[colors.core]
+background           = "#1c1c1e"
+secondary_background = "#2c2c2e"
+foreground           = "#f5f5f7"
+border               = "#3a3a3c"
+accent               = "#0a84ff"
+accent_foreground    = "#ffffff"
+
+[colors.main_window]
+border = "#3a3a3c"
+footer = { background = "#242426" }
+
+[colors.accents]
+blue    = "#0a84ff"
+green   = "#30d158"
+magenta = "#bf5af2"
+orange  = "#ff9f0a"
+purple  = "#bf5af2"
+red     = "#ff453a"
+yellow  = "#ffd60a"
+cyan    = "#64d2ff"
+
+[colors.text]
+default     = "#f5f5f7"
+muted       = "#8e8e93"
+placeholder = "#6e6e73"
+danger      = "#ff453a"
+success     = "#30d158"
+selection   = { background = "#0a84ff", foreground = "#ffffff" }
+
+[colors.text.links]
+default = "#0a84ff"
+visited = "#bf5af2"
+
+[colors.input]
+border       = "#00000000"
+border_focus = "#00000000"
+border_error = "#ff453a"
+
+[colors.button.primary]
+background = "#2c2c2e"
+foreground = "#f5f5f7"
+hover      = { background = "#3a3a3c" }
+focus      = { outline = "#0a84ff" }
+
+[colors.list.item.hover]
+foreground           = "#f5f5f7"
+secondary_foreground = "#8e8e93"
+
+[colors.list.item.selection]
+background           = "#2c2c2e"
+foreground           = "#f5f5f7"
+secondary_background = "#3a3a3c"
+secondary_foreground = "#c7c7cc"
+
+[colors.grid.item]
+background = "#2c2c2e"
+hover      = { outline = "#48484a" }
+selection  = { outline = "#0a84ff" }
+
+[colors.shortcut]
+border = "#3a3a3c"
