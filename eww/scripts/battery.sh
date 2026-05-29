@@ -1,4 +1,5 @@
 #!/bin/sh
+# Emits "<icon> <pct>%" for BAT1 (matches waybar config).
 BAT="/sys/class/power_supply/BAT1"
 [ -d "$BAT" ] || BAT="/sys/class/power_supply/BAT0"
 [ -d "$BAT" ] || { echo ""; exit 0; }

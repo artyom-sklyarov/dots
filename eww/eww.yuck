@@ -4,12 +4,12 @@
 (defpoll volume_text  :interval "2s"  `~/.config/eww/scripts/volume.sh`)
 (defpoll bri_pct      :interval "5s"  `~/.config/eww/scripts/brightness.sh`)
 (defpoll nightshift   :interval "2s"  "pgrep -x hyprsunset >/dev/null && echo on || echo off")
-(deflisten special_active :initial "" `~/.config/eww/scripts/special-active.sh`)
+(deflisten special_active `~/.config/eww/scripts/special-active.sh`)
 
 (deflisten window_title :initial "" "hyprland-activewindow eDP-1")
 (deflisten language     `~/.config/eww/scripts/language.sh`)
 (deflisten notification `~/.config/eww/scripts/notification.sh`)
-(deflisten workspaces :initial "[]" "hyprland-workspaces ALL")
+(deflisten workspaces :initial "[]" `~/.config/eww/scripts/workspaces.sh`)
 
 ; ---------- widgets ----------
 (defwidget power []
@@ -19,7 +19,11 @@
             "󰣇")))
 
 (defwidget workspaces []
-    (box :class "mod workspaces" :orientation "h" :space-evenly false :spacing 0
+    ; Outer reference to special_active forces eww 0.6 to actually subscribe to
+    ; the deflisten — without it, vars referenced only inside `(for)` never get
+    ; their listener spawned and the special button stays inactive.
+    (box :class {"mod workspaces" + (special_active != "" ? " has-special" : "")}
+         :orientation "h" :space-evenly false :spacing 0
         (for ws in workspaces
             (eventbox :cursor "pointer"
                 (button :class {
@@ -118,4 +122,5 @@
     :stacking "fg"
     :exclusive true
     :focusable false
+    :namespace "eww-bar"
     (bar))

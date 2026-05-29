@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""TUI window overview for Hyprland - task manager style."""
 
 import curses
 import glob
@@ -8,6 +9,7 @@ import subprocess
 import threading
 import time
 
+
 def read_file(path):
     try:
         with open(path) as f:
@@ -15,10 +17,12 @@ def read_file(path):
     except (OSError, IOError):
         return None
 
+
 def get_gpu_info():
     """Get all GPU usage/temp. Returns list of {label, usage, temp}."""
     gpus = []
 
+    # AMD/Intel via sysfs
     for card_dir in sorted(glob.glob("/sys/class/drm/card[0-9]")):
         busy = read_file(f"{card_dir}/device/gpu_busy_percent")
         if busy is None:
@@ -33,9 +37,11 @@ def get_gpu_info():
             if t:
                 temp = int(t) // 1000
                 break
+        # Get name from marketing_name or vendor
         label = None
         mname = read_file(f"{card_dir}/device/product_name")
         if not mname:
+            # Try uevent for a cleaner name
             uevent = read_file(f"{card_dir}/device/uevent")
             if uevent:
                 for line in uevent.split("\n"):
@@ -54,6 +60,7 @@ def get_gpu_info():
                 label = os.path.basename(card_dir)
         gpus.append({"label": label, "usage": usage, "temp": temp})
 
+    # NVIDIA via nvidia-smi
     try:
         r = subprocess.run(
             ["nvidia-smi", "--query-gpu=name,utilization.gpu,temperature.gpu",
@@ -73,6 +80,7 @@ def get_gpu_info():
         pass
 
     return gpus
+
 
 def sample_all(pids):
     """Single-pass: read system CPU + per-process CPU, sleep once, read again."""
@@ -126,6 +134,7 @@ def sample_all(pids):
             cpu = (delta / hz) / dt * 100
         proc_stats[pid] = {"cpu": cpu, "ram_mb": ram_mb}
 
+    # RAM
     mem = {}
     with open("/proc/meminfo") as f:
         for line in f:
@@ -136,6 +145,7 @@ def sample_all(pids):
     used_gb = (total_kb - avail_kb) / 1048576
     total_gb = total_kb / 1048576
 
+    # CPU temp
     cpu_temp = None
     for hwmon in glob.glob("/sys/class/hwmon/hwmon*"):
         name = read_file(f"{hwmon}/name")
@@ -152,9 +162,11 @@ def sample_all(pids):
         "ram_total_gb": total_gb,
     }, proc_stats
 
+
 def hyprctl(cmd):
     r = subprocess.run(["hyprctl", cmd, "-j"], capture_output=True, text=True)
     return json.loads(r.stdout) if r.stdout.strip() else []
+
 
 def get_window_data():
     clients = hyprctl("clients")
@@ -185,17 +197,22 @@ def get_window_data():
     special = sorted([(k, v) for k, v in ws_clients.items() if k <= 0], key=lambda x: x[0])
     return regular + special, ws_monitor
 
+
 def truncate(s, maxlen):
     if len(s) <= maxlen:
         return s
     return s[:maxlen - 1] + "…"
+
 
 def fmt_ram(mb):
     if mb >= 1024:
         return f"{mb / 1024:.1f}G"
     return f"{mb:.0f}M"
 
+
+# Line: (left_text, is_selectable, addr, title, right_text)
 EMPTY = ("", False, None, "", "")
+
 
 def build_lines(ws_list, ws_monitor, proc_stats):
     lines = []
@@ -233,6 +250,7 @@ def build_lines(ws_list, ws_monitor, proc_stats):
     total_right = f"{total_cpu:5.1f}%  {fmt_ram(total_ram):>6}"
     return lines, total_right
 
+
 def refresh_data():
     ws_list, ws_monitor = get_window_data()
     all_pids = []
@@ -245,6 +263,7 @@ def refresh_data():
     lines, total_right = build_lines(ws_list, ws_monitor, proc_stats)
     selectable = [i for i, l in enumerate(lines) if l[1]]
     return lines, selectable, sys_stats, total_right
+
 
 def draw_confirm(stdscr, app_name):
     h, w = stdscr.getmaxyx()
@@ -261,6 +280,7 @@ def draw_confirm(stdscr, app_name):
             continue
         return key in (ord("y"), ord("Y"))
 
+
 def show_loading(stdscr):
     stdscr.erase()
     h, w = stdscr.getmaxyx()
@@ -270,6 +290,7 @@ def show_loading(stdscr):
     except curses.error:
         pass
     stdscr.refresh()
+
 
 def render_line(stdscr, y, left, right, content_w, color):
     """Render a line with left text and right-aligned stats."""
@@ -288,6 +309,7 @@ def render_line(stdscr, y, left, right, content_w, color):
     except curses.error:
         pass
 
+
 def main(stdscr):
     curses.curs_set(0)
     curses.use_default_colors()
@@ -303,6 +325,7 @@ def main(stdscr):
 
     show_loading(stdscr)
 
+    # Load GPU info in parallel with CPU sampling
     gpu_result = [None]
 
     def load_gpus():
@@ -322,6 +345,7 @@ def main(stdscr):
         stdscr.erase()
         h, w = stdscr.getmaxyx()
 
+        # === Title bar ===
         cpu_t = f" {sys_stats['cpu_temp']}°" if sys_stats.get("cpu_temp") is not None else ""
         hdr = f" CPU {sys_stats['cpu_pct']}%{cpu_t}"
         hdr += f"  RAM {sys_stats['ram_used_gb']:.1f}/{sys_stats['ram_total_gb']:.1f}G"
@@ -337,6 +361,7 @@ def main(stdscr):
         except curses.error:
             pass
 
+        # === Total row (pinned) ===
         total_line = " Total"
         rw = len(total_right)
         total_padded = total_line + " " * max(0, w - len(total_line) - rw - 4) + total_right
@@ -346,6 +371,7 @@ def main(stdscr):
         except curses.error:
             pass
 
+        # === Help bar ===
         help_text = " q close  Enter focus  d kill  r refresh  mouse click "
         bot = "└─" + help_text + "─" * max(0, w - len(help_text) - 4) + "─┘"
         try:
@@ -353,6 +379,7 @@ def main(stdscr):
         except curses.error:
             pass
 
+        # === Content ===
         content_h = h - 3  # title + total + help
         if content_h < 1:
             stdscr.refresh()
@@ -390,6 +417,7 @@ def main(stdscr):
                 pass
 
             if is_current and is_sel:
+                # Selected: show class + title + stats, all highlighted
                 display_left = left
                 if title_text:
                     rw = len(right)
@@ -399,6 +427,7 @@ def main(stdscr):
                 render_line(stdscr, y_pos, display_left, right, content_w,
                             curses.color_pair(3))
             elif is_sel:
+                # Unselected window
                 prefix_end = left.find("─ ") + 2 if "─ " in left else 0
                 if prefix_end > 0:
                     try:
@@ -417,6 +446,7 @@ def main(stdscr):
                         stdscr.addnstr(y_pos, 1, left, content_w, curses.color_pair(1))
                     except curses.error:
                         pass
+                # Title dimmed
                 if title_text:
                     rw = len(right)
                     left_end = len(left)
@@ -428,6 +458,7 @@ def main(stdscr):
                                            curses.color_pair(4))
                         except curses.error:
                             pass
+                # Stats right-aligned
                 if right:
                     pos = 1 + content_w - len(right)
                     try:
@@ -442,6 +473,7 @@ def main(stdscr):
                 except curses.error:
                     pass
             elif left.startswith(" Total"):
+                # Total row
                 render_line(stdscr, y_pos, left, right, content_w,
                             curses.color_pair(2) | curses.A_BOLD)
             else:
@@ -514,6 +546,7 @@ def main(stdscr):
             gpu_thread.join()
             gpus = gpu_result[0] or []
             sel_idx = min(sel_idx, max(0, len(selectable) - 1))
+
 
 if __name__ == "__main__":
     try:

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Emits "EN" / "RU" — listens to Hyprland socket2 for activelayout events,
+# polls once at startup.
 
 KB="at-translated-set-2-keyboard"
 

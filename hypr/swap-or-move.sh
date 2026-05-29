@@ -7,6 +7,7 @@ WORKSPACE=$(echo "$ACTIVE" | jq -r '.workspace.id')
 MON_ID=$(echo "$ACTIVE" | jq -r '.monitor')
 TILED=$(hyprctl clients -j | jq "[.[] | select(.workspace.id == $WORKSPACE and .floating == false)] | length")
 
+# Get monitor geometry (x/y are already logical, w/h are raw)
 MON=$(hyprctl monitors -j | jq ".[] | select(.id == $MON_ID)")
 MON_X=$(echo "$MON" | jq -r '.x')
 MON_Y=$(echo "$MON" | jq -r '.y')
@@ -15,6 +16,7 @@ MON_H=$(echo "$MON" | jq -r '.height')
 SCALE=$(echo "$MON" | jq -r '.scale')
 RES_TOP=$(echo "$MON" | jq -r '.reserved[1]')
 
+# Logical dimensions
 MW=$(awk "BEGIN {printf \"%d\", $MON_W / $SCALE}")
 MH=$(awk "BEGIN {printf \"%d\", $MON_H / $SCALE - $RES_TOP}")
 MY=$((MON_Y + RES_TOP))

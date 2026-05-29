@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Power menu popup using GTK3 + gtk-layer-shell."""
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("GtkLayerShell", "0.1")
@@ -105,6 +106,7 @@ window {
     background-color: #222222;
     border: 1px solid #444444;
 }
+#power-btn {
     color: #cccccc;
     font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 14px;
@@ -118,8 +120,10 @@ window {
     border-radius: 0;
     margin: 0;
 }
+#power-btn:last-child {
     border-bottom: none;
 }
+#power-btn:hover {
     background-color: #333333;
     color: #ffffff;
 }

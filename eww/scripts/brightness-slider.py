@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Brightness slider popup with per-monitor controls.
+Starts hidden, polls monitor info in background, toggles via SIGUSR1.
+"""
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("GtkLayerShell", "0.1")
@@ -67,6 +70,7 @@ def get_ddc_monitors():
         pass
     return monitors
 
+
 class BrightnessPopup(Gtk.Window):
     def __init__(self):
         super().__init__()
@@ -97,6 +101,7 @@ class BrightnessPopup(Gtk.Window):
         signal.signal(signal.SIGUSR1, lambda *_: GLib.idle_add(self.toggle))
         signal.signal(signal.SIGTERM, lambda *_: GLib.idle_add(self._quit))
 
+        # Start hidden, poll immediately in background
         self.realize()
         self._poll_monitors()
 
@@ -107,12 +112,14 @@ class BrightnessPopup(Gtk.Window):
             ddc = get_ddc_monitors()
             GLib.idle_add(self._update_cache, bl, ddc)
         threading.Thread(target=_worker, daemon=True).start()
+        # Re-poll every POLL_INTERVAL_S
         GLib.timeout_add_seconds(POLL_INTERVAL_S, self._poll_monitors)
         return False
 
     def _update_cache(self, backlights, ddc):
         self._cached_backlights = backlights
         self._cached_ddc = ddc
+        # If visible, update slider values without rebuilding
         if self._visible:
             self._sync_sliders()
         return False
@@ -251,12 +258,14 @@ window {
     border: 1px solid #444444;
     border-radius: 0;
 }
+#bri-label {
     color: #cccccc;
     font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
     font-weight: 400;
     letter-spacing: 0;
     font-size: 12px;
 }
+#bri-slider {
     color: #cccccc;
     font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
     font-weight: 400;
@@ -264,13 +273,16 @@ window {
     font-size: 11px;
     min-width: 280px;
 }
+#bri-slider trough {
     min-height: 6px;
     background-color: #444444;
     border-radius: 3px;
 }
+#bri-slider highlight {
     background-color: #cccccc;
     border-radius: 3px;
 }
+#bri-slider slider {
     min-width: 16px;
     min-height: 16px;
     background-color: #cccccc;
@@ -278,6 +290,7 @@ window {
     border-radius: 8px;
     margin: -5px;
 }
+#bri-slider slider:hover {
     background-color: #ffffff;
 }
 """)
