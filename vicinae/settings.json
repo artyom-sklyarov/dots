@@ -12,8 +12,8 @@
    "$schema": "https://vicinae.com/schemas/config.json",
 
    "theme": {
-      "light": { "name": "spotlight", "icon_theme": "auto" },
-      "dark":  { "name": "spotlight", "icon_theme": "auto" }
+      "light": { "name": "default", "icon_theme": "auto" },
+      "dark":  { "name": "default", "icon_theme": "auto" }
    },
 
    "font": {
