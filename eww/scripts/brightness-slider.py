@@ -112,8 +112,11 @@ class BrightnessPopup(Gtk.Window):
             ddc = get_ddc_monitors()
             GLib.idle_add(self._update_cache, bl, ddc)
         threading.Thread(target=_worker, daemon=True).start()
-        # Re-poll every POLL_INTERVAL_S
-        GLib.timeout_add_seconds(POLL_INTERVAL_S, self._poll_monitors)
+        # Re-poll every POLL_INTERVAL_S, but only while the popup is visible.
+        # When hidden, no recurring poll is scheduled, so the DDC/I2C bus and
+        # the i915 AUX power well on the active DP link stop being hammered.
+        if self._visible:
+            GLib.timeout_add_seconds(POLL_INTERVAL_S, self._poll_monitors)
         return False
 
     def _update_cache(self, backlights, ddc):
@@ -211,6 +214,7 @@ class BrightnessPopup(Gtk.Window):
             self._reposition()
             self.show_all()
             self._visible = True
+            self._poll_monitors()
         return False
 
     def _reposition(self):

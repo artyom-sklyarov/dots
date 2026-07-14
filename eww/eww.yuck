@@ -6,7 +6,7 @@
 (defpoll nightshift   :interval "2s"  "pgrep -x hyprsunset >/dev/null && echo on || echo off")
 (deflisten special_active `~/.config/eww/scripts/special-active.sh`)
 
-(deflisten window_title :initial "" "hyprland-activewindow eDP-1")
+(deflisten window_titles :initial "{}" `hyprland-activewindow _ | jq --unbuffered -c 'map({(.name): (.title // "")}) | add // {}'`)
 (deflisten language     `~/.config/eww/scripts/language.sh`)
 (deflisten notification `~/.config/eww/scripts/notification.sh`)
 (deflisten workspaces :initial "[]" `~/.config/eww/scripts/workspaces.sh`)
@@ -38,10 +38,10 @@
                                   : "hyprctl dispatch workspace ${ws.id}"}
                     {replace(ws.name, "^special:", "")})))))
 
-(defwidget left []
+(defwidget left [monitor]
     (box :orientation "h" :space-evenly false :halign "start" :spacing 0
         (power)
-        (label :class "mod window" :text window_title :limit-width 80)))
+        (label :class "mod window" :text {window_titles[monitor] ?: ""} :limit-width 80)))
 
 (defwidget center []
     (box :orientation "h" :space-evenly false :halign "center"
@@ -109,18 +109,18 @@
         (clock)
         (notif)))
 
-(defwidget bar []
+(defwidget bar [monitor]
     (centerbox :orientation "h" :class "bar"
-        (left)
+        (left :monitor monitor)
         (center)
         (right)))
 
 ; ---------- windows ----------
-(defwindow bar
+(defwindow bar [monitor]
     :monitor 0
     :geometry (geometry :x "0%" :y "0%" :width "100%" :height "22px" :anchor "top center")
     :stacking "fg"
     :exclusive true
     :focusable false
     :namespace "eww-bar"
-    (bar))
+    (bar :monitor monitor))
