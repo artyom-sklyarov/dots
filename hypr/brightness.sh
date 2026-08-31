@@ -1,15 +1,9 @@
 #!/bin/sh
-# Adjust brightness on all monitors (laptop + external DDC/CI)
-# Usage: brightness.sh <up|down|set> [value]
-#   brightness.sh up 5      -> increase 5%
-#   brightness.sh down 5    -> decrease 5%
-#   brightness.sh set 50    -> set to 50%
 
 action="$1"
 value="${2:-5}"
 min_pct=1
 
-# Laptop backlights
 for dev in /sys/class/backlight/*/; do
     dev_name=$(basename "$dev")
     case "$action" in
@@ -22,7 +16,6 @@ for dev in /sys/class/backlight/*/; do
     esac
 done
 
-# External monitors via DDC/CI
 for display in $(ddcutil detect --brief 2>/dev/null | grep -oP 'Display \K\d+'); do
     cur=$(ddcutil --display "$display" getvcp 10 --brief 2>/dev/null | awk '{print $4}')
     [ -z "$cur" ] && continue

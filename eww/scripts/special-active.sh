@@ -1,6 +1,4 @@
 #!/bin/sh
-# Emits name of currently visible special workspace (without "special:" prefix),
-# or "" when none. Driven by Hyprland's IPC event stream so eww updates instantly.
 
 emit_current() {
     hyprctl monitors -j 2>/dev/null \

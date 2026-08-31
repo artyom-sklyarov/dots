@@ -1,11 +1,5 @@
 #!/bin/sh
 
-# Companion to mpvpaper-watch.sh. Pauses the wallpaper while every visible
-# workspace is covered by a fullscreen window, resumes otherwise. Replaces
-# mpvpaper's --auto-pause, which pauses off surface frame callbacks and
-# gets stuck showing a frozen frame. Desired state is recomputed from
-# scratch on every event, so a missed event heals on the next one; the
-# failure mode is "keeps playing", never "stuck frozen".
 
 SOCK="${XDG_RUNTIME_DIR:-/tmp}/mpvpaper.sock"
 SIG="${HYPRLAND_INSTANCE_SIGNATURE:-$(ls -1t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -1)}"
@@ -40,7 +34,5 @@ while :; do
                 sync_state ;;
         esac
     done
-    # socket2 dropped (compositor restart mid-session); retry, exec-once
-    # covers the fresh-session case
     sleep 2
 done

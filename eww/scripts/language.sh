@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Emits "EN" / "RU" for Eww. Native XKB layout toggles can change only the
-# keyboard that received the shortcut, so track whichever keyboard changed.
 
 KB="${KB:-at-translated-set-2-keyboard}"
 INTERVAL="${LANGUAGE_POLL_INTERVAL:-1}"

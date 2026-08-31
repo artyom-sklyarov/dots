@@ -106,7 +106,6 @@ window {
     background-color: #222222;
     border: 1px solid #444444;
 }
-#power-btn {
     color: #cccccc;
     font-family: "SF Pro Display", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 14px;
@@ -120,10 +119,8 @@ window {
     border-radius: 0;
     margin: 0;
 }
-#power-btn:last-child {
     border-bottom: none;
 }
-#power-btn:hover {
     background-color: #333333;
     color: #ffffff;
 }

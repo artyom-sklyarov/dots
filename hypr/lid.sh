@@ -1,8 +1,4 @@
 #!/bin/bash
-# Safe clamshell lid handler.
-# Only disables the internal panel when an external monitor is actually
-# active; otherwise Hyprland would be left with zero outputs and wedge.
-# Usage: lid.sh close | open
 
 set -u
 MONITOR="eDP-1"

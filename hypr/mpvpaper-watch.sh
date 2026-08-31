@@ -1,12 +1,5 @@
 #!/bin/sh
 
-# mpvpaper segfaults in libmpv whenever hyprctl reload recreates layer
-# surfaces. Respawn it on crash; bail out on a clean exit (intentional stop)
-# or 5 crashes inside 30s (something actually broken, don't spin).
-#
-# No --auto-pause: its surface-visibility heuristic gets stuck paused
-# (frozen wallpaper). mpvpaper-pauser.sh drives pause/resume over the IPC
-# socket from Hyprland events instead.
 
 WALL="$HOME/.local/share/Steam/steamapps/workshop/content/431960/3627262049/视频.mp4"
 SOCK="${XDG_RUNTIME_DIR:-/tmp}/mpvpaper.sock"
