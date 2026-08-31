@@ -21,8 +21,10 @@
 (defwidget workspaces []
     ; Outer reference to special_active forces eww 0.6 to actually subscribe to
     ; the deflisten — without it, vars referenced only inside `(for)` never get
-    ; their listener spawned and the special button stays inactive.
-    (box :class {"mod workspaces" + (special_active != "" ? " has-special" : "")}
+    ; their listener spawned and the special button stays inactive. Same trick
+    ; for workspaces itself: the loop source must be referenced outside the
+    ; `(for)` or the widget never re-renders when the active workspace changes.
+    (box :class {"mod workspaces" + (workspaces != "" ? " has-data" : "") + (special_active != "" ? " has-special" : "")}
          :orientation "h" :space-evenly false :spacing 0
         (for ws in workspaces
             (eventbox :cursor "pointer"
