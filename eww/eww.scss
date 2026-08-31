@@ -113,9 +113,9 @@ button.mod {
     box-shadow: none;
 }
 .ws.active {
-    background-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.2);
     background-image: none;
-    color: #222222;
+    color: #ffffff;
     font-weight: bold;
 }
 .ws:active,
@@ -126,8 +126,15 @@ button.mod {
     outline: none;
 }
 .ws.special {
-    margin-right: 6px;
-    padding: 0 12px;
+    margin-right: 0;
+    padding: 0 8px;
+    min-width: 24px;
+}
+.ws.special label {
+    font-size: 14px;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
 }
 
 .clock { color: #ffffff; }
