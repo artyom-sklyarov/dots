@@ -3,12 +3,32 @@ set -euo pipefail
 
 PLACEHOLDER_CLASS=tile-placeholder
 PLACEHOLDER_COMMAND="kitty --class $PLACEHOLDER_CLASS -o confirm_os_window_close=0"
-DRY_RUN="${1:-}"
+PROGRAM=${0##*/}
 
-if [[ -n "$DRY_RUN" && "$DRY_RUN" != "--dry-run" ]]; then
-    printf 'usage: %s [--dry-run]\n' "$0" >&2
+usage() {
+    printf 'usage: %s [--dry-run] [columns [rows]]\n' "$PROGRAM" >&2
     exit 2
-fi
+}
+
+DRY_RUN=
+grid_columns=
+grid_rows=
+for arg in "$@"; do
+    case $arg in
+        --dry-run) DRY_RUN=--dry-run ;;
+        -h|--help) usage ;;
+        *)
+            [[ "$arg" =~ ^[1-9][0-9]*$ ]] || usage
+            if [[ -z "$grid_columns" ]]; then
+                grid_columns=$arg
+            elif [[ -z "$grid_rows" ]]; then
+                grid_rows=$arg
+            else
+                usage
+            fi
+            ;;
+    esac
+done
 
 dispatch() {
     if [[ "$DRY_RUN" == "--dry-run" ]]; then
@@ -41,12 +61,12 @@ active_address=$(hyprctl activewindow -j | jq -r '.address // empty')
 tiled_layout=$(jq -er '.tiledLayout' <<< "$workspace_json")
 
 if [[ "$tiled_layout" != "dwindle" ]]; then
-    printf 'tile-workspace: active layout is %s, expected dwindle\n' "$tiled_layout" >&2
+    printf '%s: active layout is %s, expected dwindle\n' "$PROGRAM" "$tiled_layout" >&2
     exit 1
 fi
 
 if (( workspace_id < 1 )); then
-    printf 'tile-workspace: special workspaces are not supported\n' >&2
+    printf '%s: special workspaces are not supported\n' "$PROGRAM" >&2
     exit 1
 fi
 
@@ -78,38 +98,62 @@ real_json=$(jq -c --argjson idle "$idle_json" '
 ' <<< "$clients_json")
 real_count=$(jq 'length' <<< "$real_json")
 
-if (( real_count == 0 )); then
+if (( real_count == 0 )) && [[ -z "$grid_columns" ]]; then
     exit 0
 fi
 
-columns=$(awk -v n="$real_count" 'BEGIN { c = int(sqrt(n)); if (c * c < n) c++; print c }')
-rows=$(( (real_count + columns - 1) / columns ))
+if [[ -n "$grid_columns" ]]; then
+    columns=$grid_columns
+else
+    columns=$(awk -v n="$real_count" 'BEGIN { c = int(sqrt(n)); if (c * c < n) c++; print c }')
+fi
+if [[ -n "$grid_rows" ]]; then
+    rows=$grid_rows
+else
+    rows=$(( (real_count + columns - 1) / columns ))
+fi
 cells=$(( columns * rows ))
 spacers_needed=$(( cells - real_count ))
 
-mapfile -t grid_slots < <(jq -r \
-    --argjson columns "$columns" --argjson rows "$rows" --argjson cells "$cells" '
-    def cx: .at[0] + .size[0] / 2;
-    def cy: .at[1] + .size[1] / 2;
-    def bucket($value; $origin; $extent; $count):
-        [ ([ (($value - $origin) / ($extent / $count) - 0.000001 | floor), $count - 1 ] | min), 0 ] | max;
-    (map(.at[0]) | min) as $left
-    | (map(.at[1]) | min) as $top
-    | ([ (map(.at[0] + .size[0]) | max) - $left, 1 ] | max) as $width
-    | ([ (map(.at[1] + .size[1]) | max) - $top, 1 ] | max) as $height
-    | map(. + { want: (bucket(cy; $top; $height; $rows) * $columns + bucket(cx; $left; $width; $columns)) })
-    | sort_by([.want, cy, cx, (.focusHistoryID // 999999), .address])
-    | reduce .[] as $window ([range($cells) | null];
-        . as $slots
-        | ([range($window.want; $cells), range(0; $window.want)]
-           | map(select($slots[.] == null)) | first) as $slot
-        | .[$slot] = $window.address)
-    | .[] | (. // "")
-' <<< "$real_json")
+if (( cells == 0 )); then
+    exit 0
+fi
+
+if (( spacers_needed < 0 )); then
+    printf '%s: %d windows do not fit in a %dx%d grid\n' "$PROGRAM" "$real_count" "$columns" "$rows" >&2
+    exit 1
+fi
+
+if (( real_count == 0 )); then
+    grid_slots=()
+    for ((index = 0; index < cells; index++)); do
+        grid_slots+=("")
+    done
+else
+    mapfile -t grid_slots < <(jq -r \
+        --argjson columns "$columns" --argjson rows "$rows" --argjson cells "$cells" '
+        def cx: .at[0] + .size[0] / 2;
+        def cy: .at[1] + .size[1] / 2;
+        def bucket($value; $origin; $extent; $count):
+            [ ([ (($value - $origin) / ($extent / $count) - 0.000001 | floor), $count - 1 ] | min), 0 ] | max;
+        (map(.at[0]) | min) as $left
+        | (map(.at[1]) | min) as $top
+        | ([ (map(.at[0] + .size[0]) | max) - $left, 1 ] | max) as $width
+        | ([ (map(.at[1] + .size[1]) | max) - $top, 1 ] | max) as $height
+        | map(. + { want: (bucket(cy; $top; $height; $rows) * $columns + bucket(cx; $left; $width; $columns)) })
+        | sort_by([.want, cy, cx, (.focusHistoryID // 999999), .address])
+        | reduce .[] as $window ([range($cells) | null];
+            . as $slots
+            | ([range($window.want; $cells), range(0; $window.want)]
+               | map(select($slots[.] == null)) | first) as $slot
+            | .[$slot] = $window.address)
+        | .[] | (. // "")
+    ' <<< "$real_json")
+fi
 
 if (( ${#grid_slots[@]} != cells )); then
-    printf 'tile-workspace: failed to assign %d windows to a %dx%d grid\n' \
-        "$real_count" "$columns" "$rows" >&2
+    printf '%s: failed to assign %d windows to a %dx%d grid\n' \
+        "$PROGRAM" "$real_count" "$columns" "$rows" >&2
     exit 1
 fi
 
@@ -156,7 +200,7 @@ if (( spawn_count > 0 )); then
         done
 
         if (( ${#new_placeholders[@]} < spawn_count )); then
-            printf 'tile-workspace: timed out waiting for Kitty placeholders\n' >&2
+            printf '%s: timed out waiting for Kitty placeholders\n' "$PROGRAM" >&2
             exit 1
         fi
 
