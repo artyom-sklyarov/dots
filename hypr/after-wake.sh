@@ -1,6 +1,13 @@
 #!/bin/sh
 
 (
+    sleep 3
+    hyprctl dispatch dpms off
+    sleep 2
+    hyprctl dispatch dpms on
+) &
+
+(
     rfkill block bluetooth
     sleep 2
     rfkill unblock bluetooth

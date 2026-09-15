@@ -5,7 +5,10 @@ ADDR=$(echo "$ACTIVE" | jq -r '.address')
 FLOATING=$(echo "$ACTIVE" | jq -r '.floating')
 WORKSPACE=$(echo "$ACTIVE" | jq -r '.workspace.id')
 MON_ID=$(echo "$ACTIVE" | jq -r '.monitor')
-TILED=$(hyprctl clients -j | jq "[.[] | select(.workspace.id == $WORKSPACE and .floating == false)] | length")
+ACTIVE_CLASS=$(echo "$ACTIVE" | jq -r '.class')
+COINPOKER_CLASS='^(CoinPoker|coinpoker\.exe)$'
+TILED=$(hyprctl clients -j | jq --arg re "$COINPOKER_CLASS" \
+    "[.[] | select(.workspace.id == $WORKSPACE and .floating == false and (.class | test(\$re)))] | length")
 
 MON=$(hyprctl monitors -j | jq ".[] | select(.id == $MON_ID)")
 MON_X=$(echo "$MON" | jq -r '.x')
@@ -21,7 +24,7 @@ MY=$((MON_Y + RES_TOP))
 HALF_W=$((MW / 2))
 HALF_H=$((MH / 2))
 
-if [ "$TILED" -ge 2 ] && [ "$FLOATING" = "false" ]; then
+if echo "$ACTIVE_CLASS" | grep -Eq "$COINPOKER_CLASS" && [ "$TILED" -ge 2 ] && [ "$FLOATING" = "false" ]; then
     hyprctl dispatch swapwindow "$DIR"
 else
     [ "$FLOATING" = "false" ] && hyprctl dispatch setfloating "address:$ADDR"

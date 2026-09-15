@@ -1,14 +1,13 @@
 
 hl.monitor({
     output = "eDP-1",
-    mode = "3200x2000@60.0",
-    position = "4700x2396",
-    scale = 1.6000000000000005
+    mode = "0x0@60.0",
+    position = "4700x3001",
+    scale = 1.0
 })
 hl.monitor({
-    output = "DP-1",
-    mode = "3440x1440@180.0",
+    output = "DP-3",
+    mode = "3440x1440@120.0",
     position = "1260x1827",
-    scale = 1.0,
-    bitdepth = 10
+    scale = 1.0
 })
