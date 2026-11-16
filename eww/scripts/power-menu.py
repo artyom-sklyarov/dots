@@ -12,7 +12,7 @@ PIDFILE = "/tmp/power-menu.pid"
 ACTIONS = [
     ("Lock",     "hyprlock"),
     ("Sleep",    "systemctl suspend"),
-    ("Logout",   "hyprctl dispatch exit"),
+    ("Logout",   "hyprctl dispatch 'hl.dsp.exit()'"),
     ("Reboot",   "systemctl reboot"),
     ("Shutdown", "systemctl -i poweroff"),
 ]

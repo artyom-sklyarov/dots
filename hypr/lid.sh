@@ -12,7 +12,7 @@ other_active_count() {
 case "${1:-}" in
     close)
         if [ "$(other_active_count)" -ge 1 ]; then
-            hyprctl keyword monitor "$MONITOR, disable" && touch "$STATE"
+            hyprctl eval "hl.monitor({ output = \"$MONITOR\", disabled = true })" && touch "$STATE"
         fi
         ;;
     open)

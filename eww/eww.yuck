@@ -5,7 +5,7 @@
 (defpoll nightshift   :interval "2s"  "pgrep -x hyprsunset >/dev/null && echo on || echo off")
 (deflisten special_active `~/.config/eww/scripts/special-active.sh`)
 
-(deflisten window_titles :initial "{}" `hyprland-activewindow _ | jq --unbuffered -c 'map({(.name): (.title // "")}) | add // {}'`)
+(deflisten window_titles :initial "{}" `~/.config/eww/scripts/window-titles.sh`)
 (deflisten language     `~/.config/eww/scripts/language.sh`)
 (deflisten notification `~/.config/eww/scripts/notification.sh`)
 (deflisten workspaces :initial "[]" `~/.config/eww/scripts/workspaces.sh`)
@@ -29,8 +29,8 @@
                         : ws.active) ? " active" : "")
                   }
                         :onclick {ws.id < 0
-                                  ? "hyprctl dispatch togglespecialworkspace ${replace(ws.name, '^special:', '')}"
-                                  : "hyprctl dispatch workspace ${ws.id}"}
+                                  ? "hyprctl dispatch 'hl.dsp.workspace.toggle_special([[${replace(ws.name, '^special:', '')}]])'"
+                                  : "hyprctl dispatch 'hl.dsp.focus({ workspace = ${ws.id} })'"}
                     {ws.id < 0 ? "•" : replace(ws.name, "^special:", "")})))))
 
 (defwidget left [monitor]

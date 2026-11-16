@@ -490,8 +490,8 @@ def main(stdscr):
                         sel_idx = new_idx
                         entry = lines[selectable[sel_idx]]
                         if entry[2]:
-                            subprocess.run(["hyprctl", "dispatch", "focuswindow",
-                                            f"address:{entry[2]}"])
+                            subprocess.run(["hyprctl", "dispatch",
+                                            f'hl.dsp.focus({{ window = "address:{entry[2]}" }})'])
                         break
             if bstate & curses.BUTTON4_PRESSED and selectable:
                 sel_idx = max(sel_idx - 3, 0)
@@ -510,7 +510,8 @@ def main(stdscr):
             addr = entry[2]
             name = entry[0].split("─ ", 1)[-1].strip() if "─ " in entry[0] else "?"
             if addr and draw_confirm(stdscr, name):
-                subprocess.run(["hyprctl", "dispatch", "closewindow", f"address:{addr}"])
+                subprocess.run(["hyprctl", "dispatch",
+                                f'hl.dsp.window.close({{ window = "address:{addr}" }})'])
                 time.sleep(0.1)
                 lines, selectable, sys_stats, total_right = refresh_data()
                 gpus = get_gpu_info()
@@ -518,8 +519,8 @@ def main(stdscr):
         elif key in (10, curses.KEY_ENTER) and selectable:
             entry = lines[selectable[sel_idx]]
             if entry[2]:
-                subprocess.run(["hyprctl", "dispatch", "focuswindow",
-                                f"address:{entry[2]}"])
+                subprocess.run(["hyprctl", "dispatch",
+                                f'hl.dsp.focus({{ window = "address:{entry[2]}" }})'])
             break
         elif key == ord("r"):
             show_loading(stdscr)
